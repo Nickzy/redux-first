@@ -1,4 +1,6 @@
 import React from "react";
+import {connect} from "react-redux";
+import store from "./store";
 // class Commentbox extends React.Component{
 // 	constructor(){
 // 		super()
@@ -47,30 +49,24 @@ import React from "react";
 // }
 
 class Commentbox extends React.Component {
-	state={
-		comments:[
-			"第一条",
-			"第二条"
-		]
-	}
-	
-  componentWillMount() {
-  }
-
   handleSubmit=(e)=>{
     e.preventDefault()
-    console.log(this.textInput.value)
-    this.setState({comments:[...this.state.comments,this.textInput.value]})
+    // this.setState({comments:[...this.state.comments,this.textInput.value]})
+    store.dispatch({type:"add",comment:{comment:this.textInput.value,id:this.props.postId}})
     this.myForm.reset()
   }
-
+ 
   render() {
-    let commentList = this.state.comments.map((item) => (
-      <li key={Math.random()}>{item}</li>
+    let postId = this.props.postId
+    let newArr = this.props.comments.filter(function(arr){
+        return arr.id==postId
+    })
+    let commentList = newArr.map((item) => (
+      <li className="comment" key={Math.random()}>{item.comment}</li>
     ))
     return(
       <div className="comment-box">
-        {  commentList }
+        {  commentList}
         <form ref="commentForm" ref={value=>this.myForm=value} onSubmit={this.handleSubmit}   className="comment-form">
           <input ref={value => this.textInput = value} type="text" className="input" />
           <button type="submit" className="submit-btn" >提交</button>
@@ -80,4 +76,8 @@ class Commentbox extends React.Component {
     )
   }
 }
-export default Commentbox
+const mapStateToProps = (state)=>({
+  comments:state.comments,
+  likes:state.likes
+})
+export default connect(mapStateToProps)(Commentbox)
